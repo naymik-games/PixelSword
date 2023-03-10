@@ -10,27 +10,24 @@ let gameOptions = {
 
 
 }
+let currentWorld = 0
+let currentLevel = 0
 
-let playerData = {}
-playerData.health = 5
-playerData.coinCount = 0
-playerData.bombCount = 0
-playerData.shieldCount = 3
-playerData.shieldMax = 3
-playerData.lives = 3
-playerData.currentWorld = 0
-playerData.currentLevel = 0
-playerData.worldsComplete = []
-playerData.levelsComplete = [[], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [],]
+let playerData
+let playerDataDefault = {}
+playerDataDefault.health = 5
+playerDataDefault.coinCount = 0
+playerDataDefault.bombCount = 0
+playerDataDefault.hasMagic = false
+playerDataDefault.shieldCount = 3
+playerDataDefault.shieldMax = 3
+playerDataDefault.lives = 3
+playerDataDefault.currentWorld = 0
+playerDataDefault.currentLevel = 0
+playerDataDefault.worldsComplete = []
+playerDataDefault.levelsComplete = [[], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [],]
 let gameSettings;
-var defaultValues = {
-  mostDotsMoves: 0,
-  mostDotsTime: 0,
-  levelStatus: [0, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1],
-  totalSquares: 0,
-  group: 0,
-  currentLevel: 0
-}
+
 let levels = [
   [
     {

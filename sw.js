@@ -45,6 +45,7 @@ var filesToCache = [
   '/assets/sprites/explosion.png',
   '/assets/sprites/hplatform.png',
   '/assets/sprites/insidebck1.png',
+  '/assets/sprites/magicbullet.png',
   '/assets/sprites/outsideback1.png',
   '/assets/sprites/player_icon.png',
   '/assets/sprites/player2.png',

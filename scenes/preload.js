@@ -101,6 +101,11 @@ class preloadGame extends Phaser.Scene {
       margin: 1,
       spacing: 1
     });
+    this.load.spritesheet("key", "assets/sprites/keyM.png", {
+      frameWidth: 16,
+      frameHeight: 16,
+
+    });
     this.load.spritesheet("shield", "assets/sprites/bigshield.png", {
       frameWidth: 36,
       frameHeight: 40,
@@ -113,6 +118,10 @@ class preloadGame extends Phaser.Scene {
       margin: 1,
       spacing: 1
     });
+    this.load.spritesheet("potion", "assets/sprites/potion.png", {
+      frameWidth: 16,
+      frameHeight: 16,
+    });
     this.load.spritesheet("player_icon", "assets/sprites/player_icon.png", {
       frameWidth: 30,
       frameHeight: 26,
@@ -123,6 +132,8 @@ class preloadGame extends Phaser.Scene {
       frameWidth: 48,
       frameHeight: 48
     });
+
+    //enemies
     this.load.spritesheet('knight', 'assets/sprites/enemies/knight.png', {
       frameWidth: 48,
       frameHeight: 48
@@ -132,6 +143,10 @@ class preloadGame extends Phaser.Scene {
       frameHeight: 48
     });
     this.load.spritesheet('knightgold', 'assets/sprites/enemies/Knight_G.png', {
+      frameWidth: 48,
+      frameHeight: 48
+    });
+    this.load.spritesheet('knightgrey', 'assets/sprites/enemies/Knight_H.png', {
       frameWidth: 48,
       frameHeight: 48
     });
@@ -148,10 +163,13 @@ class preloadGame extends Phaser.Scene {
       frameWidth: 16,
       frameHeight: 16
     });
+
+
     this.load.spritesheet('enemybullets', 'assets/sprites/enemies/enemybullets.png', {
       frameWidth: 8,
       frameHeight: 8
     });
+    this.load.image('magicbullet', 'assets/sprites/magicbullet.png');
     this.load.image('shell', 'assets/sprites/enemies/shell.png');
     this.load.image('bomb', 'assets/sprites/bomb.png');
     this.load.image('hplatform', 'assets/sprites/hplatform.png');

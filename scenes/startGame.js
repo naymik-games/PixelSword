@@ -8,26 +8,39 @@ class startGame extends Phaser.Scene {
 
   }
   create() {
-    /*
-      gameSettings = JSON.parse(localStorage.getItem('SDsave'));
-      if (gameSettings === null || gameSettings.length <= 0) {
-        localStorage.setItem('SDsave', JSON.stringify(defaultValues));
-        gameSettings = defaultValues;
-      }
-    */
-    this.cameras.main.setBackgroundColor(0xf7eac6);
-    back1 = this.add.tileSprite(game.config.width / 2, game.config.height / 2, game.config.width, game.config.height, 'back2');
+    this.new = false
+    var text = 'Continue Game'
+    playerData = JSON.parse(localStorage.getItem('PixelSwordSave'));
+    if (playerData === null || playerData.length <= 0) {
+      localStorage.setItem('PixelSwordSave', JSON.stringify(playerDataDefault));
+      playerData = playerDataDefault;
+      this.new = true
+      text = 'Start Game'
+    }
+    this.cameras.main.setBackgroundColor(0x000000);
+
     var title = this.add.bitmapText(game.config.width / 2, 100, 'topaz', 'PixelSword', 100).setOrigin(.5).setTint(0x2222220);
 
-    var startTime = this.add.bitmapText(game.config.width / 2 - 50, 275, 'topaz', 'Play Time', 50).setOrigin(0, .5).setTint(0x000000);
-    startTime.setInteractive();
-    startTime.on('pointerdown', this.clickHandler, this);
+    this.startTime = this.add.bitmapText(game.config.width / 2 - 50, 275, 'topaz', text, 50).setOrigin(0, .5).setTint(0xfafafa);
+    this.startTime.setInteractive();
+    this.startTime.on('pointerdown', this.clickHandler, this);
+
+    var deleteGame = this.add.bitmapText(game.config.width / 2, game.config.height - 50, 'topaz', 'Delete Game', 30).setOrigin(.5).setTint(0xfafafa);
+    deleteGame.setInteractive();
+    deleteGame.on('pointerdown', function () {
+      localStorage.removeItem('PixelSwordSave');
+      localStorage.setItem('PixelSwordSave', JSON.stringify(playerDataDefault));
+      playerData = playerDataDefault;
+      deleteGame.setText('Deleted')
+      this.startTime.setText('Start Game')
+    }, this);
 
 
 
   }
   clickHandler() {
-
+    currentWorld = playerData.currentWorld
+    currentLevel = playerData.currentLevel
     this.scene.start('playGame');
     this.scene.launch('UI');
   }

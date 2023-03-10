@@ -1,6 +1,5 @@
 let game;
-let currentWorld = 0
-let currentLevel = 0
+
 
 let back1, layer, player, standing, cursors, prevPos = 0,
   yPos = 0,
@@ -27,8 +26,9 @@ let back1, layer, player, standing, cursors, prevPos = 0,
   bombs,
   bombBody,
   shells,
+  keys,
   onLadder = false,
-  shellSpeed = 500,
+  shellSpeed = 200,
   acceleration = 350,
   maxVelocityX = 200,//100 normal //fast 200
   maxVelocityY = 600,
@@ -85,6 +85,7 @@ let fallingBlockFrame = 11
 
 let doors
 let doorFrame = 31
+let doorLockedFrame = 37
 
 let hPlatforms
 let hPlatformFrame = 27
@@ -135,6 +136,7 @@ class playGame extends Phaser.Scene {
 
   }
   create() {
+
     console.log(levels[currentWorld][currentLevel])
     this.cameras.main.setBackgroundColor(0x0A0435);
     this.map = null
@@ -150,7 +152,7 @@ class playGame extends Phaser.Scene {
 
     layer = this.map.createLayer('main', this.tiles);
 
-    layer.setCollisionByExclusion([-1, collapseFrame, oneWayUpFrame1, oneWayUpFrame2, questionFrame, spikeFrame, jumperFrame, ladderFrame, ladderFrame2, puffPlantFrame, lavaSpoutFrame, lavaFallsFrame, lavaSplashFrame, lavaPoolFrame, fireFrame, doorFrame, torchFrame, hPlatformFrame, spearFrame, bombBlockFrame]);
+    layer.setCollisionByExclusion([-1, collapseFrame, oneWayUpFrame1, oneWayUpFrame2, questionFrame, spikeFrame, jumperFrame, ladderFrame, ladderFrame2, puffPlantFrame, lavaSpoutFrame, lavaFallsFrame, lavaSplashFrame, lavaPoolFrame, fireFrame, doorFrame, doorLockedFrame, torchFrame, hPlatformFrame, spearFrame, bombBlockFrame]);
 
     var oneways = [120, 121, 123, 125, 180, 181, 185, 201, 204, 233, 235, 235, 236, 238, 239, 250, 366, 367, 368, 369, 370, 371, 372, 382, 383, 384, 405, 406, 407, 408, 409, 410, 411, 412, 413, 503, 504, 506, 507, 508]
 
@@ -160,15 +162,15 @@ class playGame extends Phaser.Scene {
       }
     });
 
-    /* 
-    
-    
-        bullets = this.physics.add.group({
-          defaultKey: 'bullet',
-          maxSize: 5,
-          allowGravity: true,
-          immovable: true
-        }); */
+
+
+
+    bullets = this.physics.add.group({
+      defaultKey: 'magicbullet',
+      maxSize: 5,
+      allowGravity: true,
+      immovable: true
+    });
     puffBall = this.physics.add.group({
       defaultKey: 'enemybullets',
       defaultFrame: 2,
@@ -249,6 +251,7 @@ class playGame extends Phaser.Scene {
     this.cameras.main.setZoom(3)
     this.createPlayer()
     this.createEnemies()
+    this.createKeys()
 
 
 
@@ -276,11 +279,12 @@ class playGame extends Phaser.Scene {
     this.physics.add.collider(player, collapsingBlocks, this.shakeBlock, this.checkOneWay, this);
     this.physics.add.collider(player, questions, this.hitQuestionMarkBlock, null, this);
     this.physics.add.overlap(player, coins, this.collectObject, null, this);
+    this.physics.add.overlap(player, keys, this.collectObject, null, this);
     this.physics.add.overlap(player, powerupGroup, this.collectPowerup, null, this);
     this.physics.add.overlap(player, doors, this.hitDoor, null, this);
     this.physics.add.collider(player, jumpers, this.hitJumper, null, this);
 
-    this.physics.add.collider(player, shells, this.shellHit, null, this);
+    this.physics.add.collider(player, shells, this.hitShell, null, this);
 
     this.physics.add.collider(player, spikes, this.hitSpikes, null, this);
     this.physics.add.overlap(player, puffBall, this.hitPuffball, null, this);
@@ -304,7 +308,7 @@ class playGame extends Phaser.Scene {
     this.physics.world.addCollider(powerupGroup, layer);
 
     this.physics.world.addCollider(enemies, layer)
-    this.physics.world.addCollider(enemies, bombBlocks)
+    this.physics.world.addCollider(enemies, bombBlocks, null, null, this)
 
     this.physics.world.addCollider(hPlatforms, layer)
 
@@ -315,6 +319,9 @@ class playGame extends Phaser.Scene {
     this.physics.world.addCollider(knightbullets, enemies, this.swordHitEnemy, null, this);
 
     this.physics.world.addCollider(bombBody, bombBlocks, this.hitBombBlock, null, this);
+
+    this.physics.world.addCollider(bullets, layer, this.bulletHitLayer, null, this);
+    this.physics.world.addCollider(bullets, enemies, this.swordHitEnemy, null, this);
 
     this.buildTouchSlider()
 
@@ -664,27 +671,28 @@ class playGame extends Phaser.Scene {
   }
   /////
   hitDoor(playersprite, door) {
-    if (!door.hit) {
-      door.hit = true
-      currentLevel++
-      var t1 = this.tweens.add({
-        targets: player,
-        x: door.x,
-        duration: 500,
-        onCompleteScope: this,
-        onComplete: function () {
-          door.anims.play('layer-door', true).once('animationcomplete', function () {
-            // this.scene.stop()
-            //this.scene.stop('UI')
-            this.nextLevel()
-            this.scene.restart()
-          }, this)
+    if (door.kind == 'door-locked' && !player.hasKey) { return }
+    if ((door.kind == 'door-locked' && player.hasKey) || door.kind == 'door') {
+      if (!door.hit) {
+        door.hit = true
+        currentLevel++
+        var t1 = this.tweens.add({
+          targets: player,
+          x: door.x,
+          duration: 500,
+          onCompleteScope: this,
+          onComplete: function () {
+            door.anims.play('layer-door', true).once('animationcomplete', function () {
+              // this.scene.stop()
+              //this.scene.stop('UI')
+              this.nextLevel()
+              this.scene.restart()
+            }, this)
 
-        }
-      })
+          }
+        })
+      }
     }
-
-
 
   }
   checkOneWay(player, oneway) {
@@ -776,6 +784,10 @@ class playGame extends Phaser.Scene {
       return false;
     }
   }
+  bulletHitLayer(bullet, layer) {
+    bullets.killAndHide(bullet)
+    bullet.setPosition(-50, -50)
+  }
   puffHitLayer(ball, layer) {
     puffBall.killAndHide(ball)
     ball.setPosition(-50, -50)
@@ -802,12 +814,26 @@ class playGame extends Phaser.Scene {
     if (block.body.touching.down && !block.hit) {
       //mark block as hit
       //  block.hit = true;
+      //frames: 9,30,33
+      var powerUpFrames = [8, 9, 30, 33]
       var powerup = powerupGroup.get().setActive(true);
       powerup.setOrigin(0.5, 0.5).setScale(1).setDepth(3).setVisible(true);
+      var type = Phaser.Utils.Array.GetRandom(powerUpFrames)
+      if (type == 9) {
+        powerup.kind = 'shield'
+        powerup.setScale(1.5)
+      } else if (type == 30) {
+        powerup.kind = 'invincible'
+      } else if (type == 8) {
+        powerup.kind = 'magic'
+      } else {
+        powerup.kind = 'potion'
+      }
+      powerup.setFrame(type)
       powerup.enableBody = true;
       powerup.x = block.x;
       powerup.y = block.y;
-      powerup.kind = 'shield'
+
       powerup.body.setVelocityY(-300);
       powerup.body.setVelocityX(80)
       powerup.setGravityY(800)
@@ -826,8 +852,15 @@ class playGame extends Phaser.Scene {
   }
   collectPowerup(playersprite, power) {
     // player.setTintFill(0xff0000)
+    power.disableBody(false, false);
+    console.log(power.kind)
     if (power.kind == 'shield') {
       this.addShield()
+    } else if (power.kind == 'potion') {
+      this.addPotion()
+    } else if (power.kind == 'magic') {
+      this.addMagic()
+      playerData.hasMagic = true
     }
     player.body.velocity.x = 0;
     player.body.velocity.y = 0;
@@ -845,7 +878,7 @@ class playGame extends Phaser.Scene {
         // growHero();
       },
     });
-    power.disableBody(false, false);
+
     var tween = this.tweens.add({
       targets: power,
       alpha: 0.3,
@@ -869,6 +902,7 @@ class playGame extends Phaser.Scene {
       // playerData.coinCount++
       this.addScore()
     }
+
     if (gameObject.type == 'pellet') {
       //playerData.health += gameObject.amount
       this.addScore(gameObject.amount)
@@ -885,8 +919,7 @@ class playGame extends Phaser.Scene {
     }
     if (gameObject.type == 'Key') {
       player.hasKey = true
-      player.keys.push(gameObject.id)
-      this.updateKey()
+      this.addKey()
     }
     if (gameObject.type == 'Energy Tank') {
 
@@ -941,7 +974,7 @@ class playGame extends Phaser.Scene {
     }
 
   }
-  shellHit(player, shell) {
+  hitShell(player, shell) {
     //work out the center point of the shell and player
     var threshold = shell.x + (shell.width / 2),
       playerX = player.x + (player.width / 2);
@@ -1082,7 +1115,7 @@ class playGame extends Phaser.Scene {
       sprites[i].kind = 'spike'
       spikes.add(sprites[i])
       sprites[i].body.enable = true
-      sprites[i].body.setSize(16, 6).setOffset(0, 10);//15,15 24.5, 17
+      sprites[i].body.setSize(16, 6).setOffset(0, 17);//15,15 24.5, 17
 
     }
     var spikeTime = this.time.addEvent({
@@ -1100,12 +1133,14 @@ class playGame extends Phaser.Scene {
       this.spikesActive = false
       Phaser.Actions.Call(spikes.getChildren(), child => {
         child.setFrame(1)
+        child.body.setSize(16, 6).setOffset(0, 17)
       })
 
     } else {
       this.spikesActive = true
       Phaser.Actions.Call(spikes.getChildren(), child => {
         child.anims.play('layer-spike')
+        child.body.setSize(16, 6).setOffset(0, 10)
       })
 
     }
@@ -1457,15 +1492,36 @@ class playGame extends Phaser.Scene {
 
     var sprites = this.map.createFromTiles(doorFrame, 0, { key: 'door', frame: 0 }, null, null, layer)
 
-    for (var i = 0; i < sprites.length; i++) {
-      sprites[i].x += (this.map.tileWidth / 2)
-      // sprites[i].y += (this.map.tileHeight / 2)
-      sprites[i].kind = 'door'
-      sprites[i].hit = false
-      doors.add(sprites[i])
+    var sprites2 = this.map.createFromTiles(doorLockedFrame, 0, { key: 'door', frame: 3 }, null, null, layer)
 
-      sprites[i].body.enable = true
+    if (sprites.length > 0) {
+      for (var i = 0; i < sprites.length; i++) {
+        sprites[i].x += (this.map.tileWidth / 2)
+        // sprites[i].y += (this.map.tileHeight / 2)
+        sprites[i].kind = 'door'
+        sprites[i].hit = false
+        doors.add(sprites[i])
+
+        sprites[i].body.enable = true
+
+      }
+
     }
+    if (sprites2.length > 0) {
+      for (var i = 0; i < sprites2.length; i++) {
+        sprites2[i].x += (this.map.tileWidth / 2)
+        // sprites[i].y += (this.map.tileHeight / 2)
+        sprites2[i].kind = 'door-locked'
+        sprites2[i].hit = false
+        doors.add(sprites2[i])
+
+        sprites2[i].body.enable = true
+
+      }
+
+    }
+
+
   }
   createSpear(layer) {
     this.spearActive = false
@@ -1543,7 +1599,25 @@ class playGame extends Phaser.Scene {
       }
     }
   }
+  createKeys() {
+    this.anims.create({
+      key: "layer-key",
+      frames: this.anims.generateFrameNumbers('key', { frames: [0, 1, 2, 3, 4, 5, 6, 7, 8] }),
+      frameRate: 3,
+      repeat: -1
+    });
+    keys = this.physics.add.group({ immovable: true });
 
+    for (var i = 0; i < this.thinglayer.length; i++) {
+      if (this.thinglayer[i].name == 'Key') {
+        var worldXY = this.map.tileToWorldXY(this.thinglayer[i].x, this.thinglayer[i].y + 1)
+        var key = keys.create(worldXY.x + (this.map.tileWidth / 2), worldXY.y - (this.map.tileHeight / 2), 'key', 0)//99
+        key.type = this.thinglayer[i].name
+        key.setOrigin(.5, .5);
+        key.anims.play('layer-key')
+      }
+    }
+  }
   createPlayer() {
     //this.rooomCheck()
 
@@ -1578,14 +1652,14 @@ class playGame extends Phaser.Scene {
     enemies = this.physics.add.group({ immovable: true });
     for (var i = 0; i < this.thinglayer.length; i++) {
       var worldXY = this.map.tileToWorldXY(this.thinglayer[i].x, this.thinglayer[i].y + 1)
-      if (this.thinglayer[i].name == 'Pine') {
-        var enemey0 = new Pine(this, worldXY.x + (this.map.tileWidth / 2), worldXY.y - (this.map.tileHeight / 2), 0)
+      if (this.thinglayer[i].name == 'Bronze Kight') {
+        var enemey0 = new BronzeKnight(this, worldXY.x + (this.map.tileWidth / 2), worldXY.y - (this.map.tileHeight / 2), 0)
         //console.log('make enemy 1')
-      } else if (this.thinglayer[i].name == 'Jumper') {
-        var enemey1 = new JumperEnemy(this, worldXY.x + (this.map.tileWidth / 2), worldXY.y - (this.map.tileHeight * 2), 1)
+      } else if (this.thinglayer[i].name == 'Jumper Knight') {
+        var enemey1 = new JumperKnight(this, worldXY.x + (this.map.tileWidth / 2), worldXY.y - (this.map.tileHeight * 2), 1)
         //console.log('make enemy 1')
-      } else if (this.thinglayer[i].name == 'Swordsman') {
-        var enemey2 = new Swordsman(this, worldXY.x + (this.map.tileWidth / 2), worldXY.y - (this.map.tileHeight * 2), 2)
+      } else if (this.thinglayer[i].name == 'Swordsman Knight') {
+        var enemey2 = new SwordsmanKight(this, worldXY.x + (this.map.tileWidth / 2), worldXY.y - (this.map.tileHeight * 2), 2)
         //console.log('make enemy 1')
       } else if (this.thinglayer[i].name == 'Flying Crow') {
         // var enemey2 = new CrowFly(this, worldXY.x + (this.map.tileWidth / 2), worldXY.y - (this.map.tileHeight * 2), 3)
@@ -1593,11 +1667,11 @@ class playGame extends Phaser.Scene {
       } else if (this.thinglayer[i].name == 'Sitting Crow') {
         var enemey3 = new CrowSit(this, worldXY.x + (this.map.tileWidth / 2), worldXY.y - (this.map.tileHeight / 2), 4)
         //console.log('make enemy 1')
-      } else if (this.thinglayer[i].name == 'Walking Knight') {
-        var enemey3 = new KnightWalk(this, worldXY.x + (this.map.tileWidth / 2), worldXY.y - (this.map.tileHeight / 2), 5)
+      } else if (this.thinglayer[i].name == 'Throwing Knight') {
+        var enemey3 = new ThrowingKnight(this, worldXY.x + (this.map.tileWidth / 2), worldXY.y - (this.map.tileHeight / 2), 5)
         //console.log('make enemy 1')
       } else if (this.thinglayer[i].name == 'Turtle Knight') {
-        var enemey3 = new KnightTurtle(this, worldXY.x + (this.map.tileWidth / 2), worldXY.y - (this.map.tileHeight / 2), 6)
+        var enemey3 = new TurtleKnight(this, worldXY.x + (this.map.tileWidth / 2), worldXY.y - (this.map.tileHeight / 2), 6)
         //console.log('make enemy 1')
       }
 
@@ -1644,5 +1718,20 @@ class playGame extends Phaser.Scene {
   }
   addShield() {
     this.events.emit('addshield')
+  }
+  addPotion() {
+    this.events.emit('addpotion')
+  }
+  subPotion() {
+    this.events.emit('subpotion')
+  }
+  addMagic() {
+    this.events.emit('addmagic')
+  }
+  subMagic() {
+    this.events.emit('submagic')
+  }
+  addKey() {
+    this.events.emit('addkey')
   }
 }

@@ -59,12 +59,12 @@ class Player extends Phaser.Physics.Arcade.Sprite {
        frameRate: 18,
        repeat: 0
      }); */
-    /* anims.create({
-       key: "player-cast",
-       frames: anims.generateFrameNumbers("player", { start: 85, end: 96 }),
-       frameRate: 12,
-       repeat: 0
-     }); */
+    anims.create({
+      key: "player-cast",
+      frames: anims.generateFrameNumbers("player", { start: 30, end: 34 }),
+      frameRate: 12,
+      repeat: 0
+    });
     // Create the physics-based sprite that we will move around and animate
     this.invulnerable = false;
     this.invincible = false
@@ -97,10 +97,18 @@ class Player extends Phaser.Physics.Arcade.Sprite {
 
     //animation
     if (this.swinging) {
-      this.anims.play("player-swing", true).once('animationcomplete', function () {
-        this.anims.stop();
-        this.swinging = false
-      }, this)
+      if (playerData.hasMagic) {
+        this.anims.play("player-cast", true).once('animationcomplete', function () {
+          this.anims.stop();
+          this.swinging = false
+        }, this)
+      } else {
+        this.anims.play("player-swing", true).once('animationcomplete', function () {
+          this.anims.stop();
+          this.swinging = false
+        }, this)
+      }
+
     } else if (standing) {
       if (this.body.velocity.x !== 0) {
 
@@ -182,8 +190,14 @@ class Player extends Phaser.Physics.Arcade.Sprite {
       }
       //otherwise you're not dead you've just lost a life so...
       else {
-        playerData.shieldCount -= damage
-        this.scene.subShield()
+        if (playerData.hasMagic) {
+          playerData.hasMagic = false
+          this.scene.subMagic()
+        } else {
+          playerData.shieldCount -= damage
+          this.scene.subShield()
+        }
+
         //make the player stop in their tracks and jump up
         // this.body.velocity.x = 0;
         this.body.velocity.y = -220;
@@ -225,6 +239,9 @@ class Player extends Phaser.Physics.Arcade.Sprite {
   }
   swing() {
     this.swordHitBox.body.enable = true
+    if (playerData.hasMagic) {
+      this.shoot()
+    }
     var off = this.flipX ? -12 : 12
     this.swordHitBox.x = this.x + off
     this.swordHitBox.y = this.y + 8
@@ -249,36 +266,40 @@ class Player extends Phaser.Physics.Arcade.Sprite {
     if (bullets.maxSize - bullets.getTotalUsed() > 0) {
       if (this.canShoot) {
         this.canShoot = false
-        var bullet = bullets.get().setActive(true);
-
-
-
-        // Place the explosion on the screen, and play the animation.
-        bullet.setOrigin(0.5, 0.5).setScale(1).setDepth(3).setVisible(true);
-        //bullet.setSize(8, 8).setOffset(8, 4)
-        /* if (this.missleActive) {
- 
-          bullet.setTexture('missle')
-          playerData.missleCount--
-          this.scene.updateMissle()
-        } else {
-          bullet.setTexture('bullet')
-        } */
-
-        bullet.x = this.x;
-        bullet.y = this.y - 0;
-        bullet.state = 100// playerData.range
-        //bullet.play('bullet-fired')
-        if (this.flipX) {
-          bullet.setFlipX(true);
-          bullet.body.setVelocityX(-bulletSpeed)
-        } else {
-          bullet.setFlipX(false);
-          bullet.body.setVelocityX(bulletSpeed)
+        for (var i = 0; i < 2; i++) {
+          var bullet = bullets.get().setActive(true);
+          bullet.setOrigin(0.5, 0.5).setScale(1).setDepth(3).setVisible(true);
+          bullet.x = this.x;
+          bullet.y = this.y + 8;
+          bullet.state = 100// playerData.range
+          //bullet.play('bullet-fired')
+          if (i == 0) {
+            bullet.setFlipX(true);
+            bullet.body.setVelocityX(-bulletSpeed)
+          } else {
+            bullet.setFlipX(false);
+            bullet.body.setVelocityX(bulletSpeed)
+          }
+          var ran = Math.random() < 0.5 ? -1 : 1
+          bullet.body.setVelocityY(15 * ran)
+          bullet.setGravityY(0)
         }
-        var ran = Math.random() < 0.5 ? -1 : 1
-        bullet.body.setVelocityY(25 * ran)
-        bullet.setGravityY(0)
+        /*   var bullet = bullets.get().setActive(true);
+          bullet.setOrigin(0.5, 0.5).setScale(1).setDepth(3).setVisible(true);
+          bullet.x = this.x;
+          bullet.y = this.y - 0;
+          bullet.state = 100// playerData.range
+          //bullet.play('bullet-fired')
+          if (this.flipX) {
+            bullet.setFlipX(true);
+            bullet.body.setVelocityX(-bulletSpeed)
+          } else {
+            bullet.setFlipX(false);
+            bullet.body.setVelocityX(bulletSpeed)
+          }
+          var ran = Math.random() < 0.5 ? -1 : 1
+          bullet.body.setVelocityY(15 * ran)
+          bullet.setGravityY(0) */
         var timer = this.scene.time.delayedCall(150, function () {
           this.canShoot = true
         }, null, this);
@@ -292,19 +313,21 @@ class Player extends Phaser.Physics.Arcade.Sprite {
     bullet.setPosition(-50, -50)
   }
   setBomb() {
-    console.log('set bomb')
+    console.log(playerData.bombCount)
+    if (playerData.bombCount > 0) {
+      var bomb = bombs.get().setActive(true);
 
-    var bomb = bombs.get().setActive(true);
+      this.scene.subPotion()
+      // Place the explosion on the screen, and play the animation.
+      bomb.setOrigin(0.5, 0).setScale(1).setDepth(3).setVisible(true);
+      bomb.x = this.x;
+      bomb.y = this.y + 8;
 
-    // Place the explosion on the screen, and play the animation.
-    bomb.setOrigin(0.5, 0).setScale(1).setDepth(3).setVisible(true);
-    bomb.x = this.x;
-    bomb.y = this.y + 8;
-    // this.body.velocity.y = -220;
+      bomb.getBounds()
 
-    bomb.getBounds()
+      var timer = this.scene.time.delayedCall(1000, this.explodeBomb, [bomb], this);
+    }
 
-    var timer = this.scene.time.delayedCall(1000, this.explodeBomb, [bomb], this);
   }
   explodeBomb(bomb) {
     bombBody.setPosition(bomb.x, bomb.y + 16)

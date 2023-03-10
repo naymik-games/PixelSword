@@ -28,7 +28,15 @@ class UI extends Phaser.Scene {
     this.scoreText = this.add.bitmapText(75, 33.5, 'topaz', '500', 35).setOrigin(0, .5).setTint(0xcbf7ff).setAlpha(1);
 
 
-
+    this.anims.create({
+      key: "ui-key",
+      frames: this.anims.generateFrameNumbers('key', { start: 0, end: 8 }),
+      frameRate: 6,
+      repeatDelay: 1500,
+      repeat: -1
+    });
+    this.keyIcon = this.add.sprite(405, 10, 'key', 0).setOrigin(.5, 0).setScale(4).setAlpha(0)
+    this.keyIcon.anims.play('ui-key')
 
     this.anims.create({
       key: "layer-shield",
@@ -68,12 +76,21 @@ class UI extends Phaser.Scene {
     this.livesText = this.add.bitmapText(525, 33.5, 'topaz', 'x3', 35).setOrigin(0, .5).setTint(0xcbf7ff).setAlpha(1);
 
 
+    this.anims.create({
+      key: "ui-potion",
+      frames: this.anims.generateFrameNumbers('potion', { start: 0, end: 7 }),
+      frameRate: 8,
+      repeat: -1
+    });
 
     this.footer = this.add.image(game.config.width, game.config.height, 'blank').setOrigin(1).setTint(0x222222);
     this.footer.displayWidth = game.config.width / 2;
     this.footer.displayHeight = 75;
-    this.levelText = this.add.bitmapText(game.config.width - 75, game.config.height - 33.5, 'topaz', playerData.currentWorld + '-' + playerData.currentLevel, 35).setOrigin(1, .5).setTint(0xcbf7ff).setAlpha(1);
-
+    this.levelText = this.add.bitmapText(game.config.width - 35, game.config.height - 33.5, 'topaz', playerData.currentWorld + '-' + playerData.currentLevel, 35).setOrigin(1, .5).setTint(0xcbf7ff).setAlpha(1);
+    this.bombIcon = this.add.sprite(315, game.config.height - 60, 'potion', 0).setOrigin(0, 0).setScale(3)
+    this.bombIcon.anims.play('ui-potion')
+    this.bombText = this.add.bitmapText(365, game.config.height - 39, 'topaz', 'x' + playerData.bombCount, 35).setOrigin(0, .5).setTint(0xcbf7ff).setAlpha(1);
+    this.magicIcon = this.add.sprite(425, game.config.height - 55, 'magicbullet').setOrigin(0, 0).setScale(6).setAlpha(0)
 
     var Main = this.scene.get('playGame');
     Main.events.on('score', function () {
@@ -84,7 +101,7 @@ class UI extends Phaser.Scene {
     }, this);
     Main.events.on('level', function () {
 
-
+      this.keyIcon.setAlpha(0)
       //console.log('dots ' + string)
       this.levelText.setText(currentWorld + '-' + currentLevel)
     }, this);
@@ -101,7 +118,23 @@ class UI extends Phaser.Scene {
       //console.log('dots ' + string)
 
     }, this);
-
+    Main.events.on('addpotion', function () {
+      playerData.bombCount++
+      this.bombText.setText('x' + playerData.bombCount)
+    }, this);
+    Main.events.on('subpotion', function () {
+      playerData.bombCount--
+      this.bombText.setText('x' + playerData.bombCount)
+    }, this);
+    Main.events.on('addmagic', function () {
+      this.magicIcon.setAlpha(1)
+    }, this);
+    Main.events.on('submagic', function () {
+      this.magicIcon.setAlpha(0)
+    }, this);
+    Main.events.on('addkey', function () {
+      this.keyIcon.setAlpha(1)
+    }, this);
   }
 
   update() {

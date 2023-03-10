@@ -64,7 +64,7 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
   patrolTimedSwing() {
     if (Math.abs(this.x - this.previousX) >= this.maxDistance) {
       this.body.velocity.x = 0
-      this.body.velocity.y = -200
+
       this.anims.play('enemy-attack', true).once('animationcomplete', function () {
 
         var dis = Phaser.Math.Distance.Between(player.x, player.y, this.x, this.y)
@@ -216,9 +216,9 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
-// Enemy 0 pine
+// Enemy 0 BronzeKnight
 ////////////////////////////////////////////////////////////////////////////////////
-class Pine extends Enemy {
+class BronzeKnight extends Enemy {
   constructor(scene, x, y, kind) {
     super(scene, x, y, kind);
 
@@ -269,7 +269,7 @@ class Pine extends Enemy {
       repeat: 0
     })
     this.play('enemy-run')
-    this.body.setSize(10, 14).setOffset(18, 17)
+    this.body.setSize(10, 16).setOffset(18, 16)
     this.body.velocity.x = -this.vx;
     this.direction = -1;
     this.setFlipX(true)
@@ -286,9 +286,9 @@ class Pine extends Enemy {
 
 }
 /////////////////////////////////////////////////////////////////////////////////////
-// Enemy 1 Jumper
+// Enemy 1 JumperKnight
 ////////////////////////////////////////////////////////////////////////////////////
-class JumperEnemy extends Enemy {
+class JumperKnight extends Enemy {
   constructor(scene, x, y, kind) {
     super(scene, x, y, kind);
 
@@ -325,7 +325,7 @@ class JumperEnemy extends Enemy {
     })
 
     this.play('enemy-run')
-    this.body.setSize(10, 14).setOffset(18, 17)
+    this.body.setSize(10, 16).setOffset(18, 16)
     this.body.velocity.x = -this.vx;
     this.direction = -1;
     this.setFlipX(true)
@@ -365,7 +365,7 @@ class JumperEnemy extends Enemy {
 /////////////////////////////////////////////////////////////////////////////////////
 // Enemy 2 swordsman
 ////////////////////////////////////////////////////////////////////////////////////
-class Swordsman extends Enemy {
+class SwordsmanKight extends Enemy {
   constructor(scene, x, y, kind) {
     super(scene, x, y, kind);
 
@@ -395,13 +395,13 @@ class Swordsman extends Enemy {
     })
     this.anims.create({
       key: 'enemy-attack',
-      frames: anims.generateFrameNumbers(enemeyConfigs[kind].key, { frames: [4, 5, 6, 7, 8, 9, 10, 11] }),
+      frames: anims.generateFrameNumbers(enemeyConfigs[kind].key, { frames: [40, 41, 42, 43, 44, 45, 46] }),
       // frames: anims.generateFrameNumbers(enemeyConfigs[kind].key, enemeyConfigs[kind].frames),
       frameRate: enemeyConfigs[kind].fr,
       repeat: 0
     })
     this.play('enemy-run')
-    this.body.setSize(18, 28).setOffset(32, 18)
+    this.body.setSize(10, 16).setOffset(18, 16)
     this.body.velocity.x = -this.vx;
     this.direction = -1;
     this.setFlipX(true)
@@ -411,62 +411,7 @@ class Swordsman extends Enemy {
   preUpdate(time, delta) {
     super.preUpdate(time, delta);
 
-
-    if (Math.abs(this.x - this.previousX) >= this.maxDistance) {
-      this.body.velocity.x = 0
-      this.anims.play('enemy-attack', true).once('animationcomplete', function () {
-
-        var dis = Phaser.Math.Distance.Between(player.x, player.y, this.x, this.y)
-
-        //console.log(dis)
-        //this.toggleFlipX()
-        if (this.direction == -1) {
-          if (dis <= 42 && player.x < this.x) {
-            player.playerHit(this.damage[0], this.damage[1], this.damage[2])
-          }
-          this.setFlipX(false)
-
-          this.direction = 1
-          this.body.velocity.x = this.vx;
-          this.anims.play('enemy-run', true)
-        } else if (this.direction == 1) {
-          if (dis <= 42 && player.x > this.x) {
-            player.playerHit(this.damage[0], this.damage[1], this.damage[2])
-          }
-
-          this.setFlipX(true)
-          this.direction = -1
-          this.body.velocity.x = -this.vx;
-          this.anims.play('enemy-run', true)
-        }
-      }, this)
-      this.previousX = this.x;
-    } else {
-      if (this.direction == -1 && this.body.blocked.left) {
-        // console.log('blocked left')
-        this.anims.play('enemy-attack').once('animationcomplete', function () {
-          this.setFlipX(false)
-          this.body.velocity.x = 200;
-          this.direction = 1
-          this.previousX = this.x;
-        }, this)
-
-
-        //this.switchDirection();
-      }
-      if (this.direction == 1 && this.body.blocked.right) {
-        //console.log('blocked right')
-        this.anims.play('enemy-attack').once('animationcomplete', function () {
-          this.setFlipX(true)
-          this.body.velocity.x = -200
-          this.direction = -1
-          this.previousX = this.x;
-        }, this)
-
-
-        //this.switchDirection();
-      }
-    }
+    this.patrolTimedSwing()
 
   }
 
@@ -727,9 +672,9 @@ class CrowSit extends Enemy {
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
-// Enemy 5 walking knight
+// Enemy 5 ThrowingKnight
 ////////////////////////////////////////////////////////////////////////////////////
-class KnightWalk extends Enemy {
+class ThrowingKnight extends Enemy {
   constructor(scene, x, y, kind) {
     super(scene, x, y, kind);
 
@@ -780,7 +725,7 @@ class KnightWalk extends Enemy {
       repeat: 0
     })
     this.play('enemy-run')
-    this.body.setSize(10, 14).setOffset(18, 17)
+    this.body.setSize(10, 16).setOffset(18, 16)
     this.body.velocity.x = -this.vx;
     this.direction = -1;
     this.setFlipX(true)
@@ -791,6 +736,7 @@ class KnightWalk extends Enemy {
     super.preUpdate(time, delta);
 
     this.patrolTimedThrow()
+    //this.patrol()
 
 
   }
@@ -800,7 +746,7 @@ class KnightWalk extends Enemy {
 /////////////////////////////////////////////////////////////////////////////////////
 // Enemy 6 turtle knight
 ////////////////////////////////////////////////////////////////////////////////////
-class KnightTurtle extends Enemy {
+class TurtleKnight extends Enemy {
   constructor(scene, x, y, kind) {
     super(scene, x, y, kind);
 
@@ -851,7 +797,7 @@ class KnightTurtle extends Enemy {
       repeat: 0
     })
     this.play('enemy-run')
-    this.body.setSize(10, 14).setOffset(18, 17)
+    this.body.setSize(10, 16).setOffset(18, 16)
     this.body.velocity.x = -this.vx;
     this.direction = -1;
     this.setFlipX(true)
@@ -874,6 +820,7 @@ let enemeyConfigs = [
   {
     id: 0,
     key: 'knight',
+    name: 'Bronze Knight',
     frames: [8, 9, 10, 11, 12, 13],
     fr: 12,
     strength: 1,
@@ -882,6 +829,7 @@ let enemeyConfigs = [
   {
     id: 1,
     key: 'knighttan',
+    name: 'Jumper Knight',
     frames: [0, 1, 2, 3, 4, 5],
     fr: 6,
     strength: 1,
@@ -889,8 +837,9 @@ let enemeyConfigs = [
   },
   {
     id: 2,
-    key: 'swordsman',
-    frames: [0, 1, 2, 3],
+    key: 'knightgrey',
+    name: 'Swordsman Knight',
+    frames: [8, 9, 10, 11, 12, 13],
     fr: 12,
     strength: 1,
     damage: [-1, -3, -1]
@@ -898,6 +847,7 @@ let enemeyConfigs = [
   {
     id: 3,
     key: 'crow',
+    name: 'Flying Crow',
     frames: [8, 9, 10, 11, 12, 13, 14, 15],
     fr: 8,
     strength: 1,
@@ -906,6 +856,7 @@ let enemeyConfigs = [
   {
     id: 4,
     key: 'crow',
+    name: 'Sitting Crow',
     frames: [0, 1],
     fr: 3,
     strength: 1,
@@ -913,7 +864,8 @@ let enemeyConfigs = [
   },
   {
     id: 5,
-    key: 'knight',
+    key: 'knightgold',
+    name: 'Throwing Knight',
     frames: [8, 9, 10, 11, 12, 13],
     fr: 8,
     strength: 1,
@@ -922,6 +874,7 @@ let enemeyConfigs = [
   {
     id: 6,
     key: 'knightturtle',
+    name: 'Turtle Knight',
     frames: [8, 9, 10, 11, 12, 13],
     fr: 8,
     strength: 1,
