@@ -33,8 +33,8 @@ let levels = [
     {
       id: 0,
       map: 'level0-0',
-      location: 'inside',
-      backKey: 'back2'
+      location: 'outside',
+      backKey: 'back1'
     },
     {
       id: 1,

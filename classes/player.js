@@ -25,12 +25,12 @@ class Player extends Phaser.Physics.Arcade.Sprite {
     anims.create({
       key: "player-idle",
       frames: anims.generateFrameNumbers("player", { frames: [0, 1, 2, 3] }),
-      frameRate: 6,
+      frameRate: 4,
       repeat: -1
     });
     anims.create({
       key: "player-run",
-      frames: anims.generateFrameNumbers("player", { start: 6, end: 11 }),
+      frames: anims.generateFrameNumbers("player", { start: 6, end: 10 }),
       frameRate: 12,
       repeat: -1
     });
@@ -179,11 +179,21 @@ class Player extends Phaser.Physics.Arcade.Sprite {
           y: this.y - 20,
           ease: 'Linear',
           duration: 1000,
+          onCompleteScope: this,
           onComplete: function () {
-            //restartGame(this);
-            this.scene.scene.stop()
-            this.scene.scene.stop('UI')
-            this.scene.scene.start('startGame')
+            if (playerData.lives <= 0) {
+
+              localStorage.removeItem('PixelSwordSave');
+              this.scene.scene.stop()
+              this.scene.scene.stop('UI')
+              this.scene.scene.start('startGame')
+            } else {
+              playerData.lives--
+              this.scene.restartScene();
+              this.scene.scene.restart();
+            }
+
+
           },
           onCompleteScope: this
         });

@@ -135,6 +135,9 @@ class UI extends Phaser.Scene {
     Main.events.on('addkey', function () {
       this.keyIcon.setAlpha(1)
     }, this);
+    Main.events.on('restart', function () {
+      this.livesText.setText('x' + playerData.lives)
+    }, this);
   }
 
   update() {

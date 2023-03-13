@@ -18,10 +18,10 @@ class startGame extends Phaser.Scene {
       text = 'Start Game'
     }
     this.cameras.main.setBackgroundColor(0x000000);
-
+    var back1 = this.add.tileSprite(game.config.width / 2, game.config.height / 2, game.config.width, game.config.height, 'startback');
     var title = this.add.bitmapText(game.config.width / 2, 100, 'topaz', 'PixelSword', 100).setOrigin(.5).setTint(0x2222220);
 
-    this.startTime = this.add.bitmapText(game.config.width / 2 - 50, 275, 'topaz', text, 50).setOrigin(0, .5).setTint(0xfafafa);
+    this.startTime = this.add.bitmapText(game.config.width / 2, 275, 'topaz', text, 50).setOrigin(.5).setTint(0xfafafa);
     this.startTime.setInteractive();
     this.startTime.on('pointerdown', this.clickHandler, this);
 

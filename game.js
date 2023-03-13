@@ -1,7 +1,7 @@
 let game;
 
 
-let back1, layer, player, standing, cursors, prevPos = 0,
+let back1, back3, layer, player, standing, cursors, prevPos = 0,
   yPos = 0,
   jumps = 2,
   touchJump = false,
@@ -147,6 +147,7 @@ class playGame extends Phaser.Scene {
 
 
     back1 = this.add.tileSprite(0, 0, this.map.widthInPixels * 2, this.map.heightInPixels * 2, levels[currentWorld][currentLevel].backKey);
+    back3 = this.add.tileSprite(game.config.width / 2, game.config.height / 2, this.map.widthInPixels * 2, 208, 'back3');
     const layerBack = this.map.createLayer('back', this.tiles);
     const layerDec = this.map.createLayer('deco', this.tiles);
 
@@ -1712,6 +1713,9 @@ class playGame extends Phaser.Scene {
   }
   nextLevel() {
     this.events.emit('level');
+  }
+  restartScene() {
+    this.events.emit('restart')
   }
   subShield() {
     this.events.emit('subShield')

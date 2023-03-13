@@ -86,7 +86,7 @@ class preloadGame extends Phaser.Scene {
       frameHeight: 32
     });
 
-    this.load.spritesheet("player", "assets/sprites/player2.png", {
+    this.load.spritesheet("player", "assets/sprites/player4.png", {
       frameWidth: 64,
       frameHeight: 64
     });
@@ -174,7 +174,9 @@ class preloadGame extends Phaser.Scene {
     this.load.image('bomb', 'assets/sprites/bomb.png');
     this.load.image('hplatform', 'assets/sprites/hplatform.png');
     this.load.image('back1', 'assets/sprites/outsideback1.png');
+    this.load.image('back3', 'assets/sprites/outsideback2.png');
     this.load.image('back2', 'assets/sprites/insideback1.png');
+    this.load.image('startback', 'assets/sprites/startback.png');
     this.load.image('blank', 'assets/sprites/blank.png');
     this.load.image("touch-slider", "assets/sprites/touch-slider.png");
     this.load.image("touch-knob", "assets/sprites/touch-knob.png");
