@@ -96,6 +96,8 @@ let spearFrame = 34
 let bombBlocks
 let bombBlockFrame = 35
 
+let boxes
+let chestFrame = 36
 
 
 window.onload = function () {
@@ -153,7 +155,7 @@ class playGame extends Phaser.Scene {
 
     layer = this.map.createLayer('main', this.tiles);
 
-    layer.setCollisionByExclusion([-1, collapseFrame, oneWayUpFrame1, oneWayUpFrame2, questionFrame, spikeFrame, jumperFrame, ladderFrame, ladderFrame2, puffPlantFrame, lavaSpoutFrame, lavaFallsFrame, lavaSplashFrame, lavaPoolFrame, fireFrame, doorFrame, doorLockedFrame, torchFrame, hPlatformFrame, spearFrame, bombBlockFrame]);
+    layer.setCollisionByExclusion([-1, collapseFrame, oneWayUpFrame1, oneWayUpFrame2, questionFrame, spikeFrame, jumperFrame, ladderFrame, ladderFrame2, puffPlantFrame, lavaSpoutFrame, lavaFallsFrame, lavaSplashFrame, lavaPoolFrame, fireFrame, doorFrame, doorLockedFrame, torchFrame, hPlatformFrame, spearFrame, bombBlockFrame, chestFrame]);
 
     var oneways = [120, 121, 123, 125, 180, 181, 185, 201, 204, 233, 235, 235, 236, 238, 239, 250, 366, 367, 368, 369, 370, 371, 372, 382, 383, 384, 405, 406, 407, 408, 409, 410, 411, 412, 413, 503, 504, 506, 507, 508]
 
@@ -244,6 +246,7 @@ class playGame extends Phaser.Scene {
     this.createHPlatforms(layer)
     this.createSpear(layer)
     this.createBombBlocks(layer)
+    this.createBoxes(layer)
 
     this.thinglayer = this.map.getObjectLayer('things')['objects'];
     this.createCoins()
@@ -297,6 +300,7 @@ class playGame extends Phaser.Scene {
     this.physics.add.overlap(player, spears, this.hitSpear, null, this);
 
     this.physics.add.overlap(player.swordHitBox, enemies, this.swordHitEnemy, null, this);
+    this.physics.add.overlap(player.swordHitBox, boxes, this.smash, null, this);
     this.physics.add.overlap(player, enemies, this.playerHitEnemy, null, this);
     this.physics.world.addCollider(player, crowbullets, this.crowBulletHitPlayer, null, this);
     this.physics.world.addCollider(player, knightbullets, this.crowBulletHitPlayer, null, this);
@@ -560,7 +564,7 @@ class playGame extends Phaser.Scene {
         //if our hero isn't moving left or right then slow them down
         //this velocity.x check just works out whether we are setting a positive (going right) or negative (going left) number
         player.setAccelerationX(
-          (player.body.velocity.x > 0 ? -1 : 1) * acceleration / 3
+          (player.body.velocity.x > 0 ? -1 : 1) * acceleration / 5
         );
       }
     }
@@ -606,7 +610,7 @@ class playGame extends Phaser.Scene {
       player.setAccelerationX(-acceleration);
     } else {
       //if hero is in the air then accelerate slower
-      player.setAccelerationX(-acceleration / 1.5);
+      player.setAccelerationX(-acceleration / 1.25);
     }
   }
 
@@ -619,7 +623,7 @@ class playGame extends Phaser.Scene {
       player.setAccelerationX(acceleration);
     } else {
       //if hero is in the air then accelerate slower
-      player.setAccelerationX(acceleration / 1.5);
+      player.setAccelerationX(acceleration / 1.25);
     }
   }
   /////////////////////////////////////////////////////////////////////////
@@ -669,6 +673,21 @@ class playGame extends Phaser.Scene {
     baddie.enemyHit(1)
     //player.killBullet(bullet)
 
+  }
+  smash(hitbox, box) {
+
+    box.body.enable = false
+    if (box.kind == 'chest') {
+
+      box.anims.play('layer-chest')
+    } else if (box.kind == 'barrell') {
+      console.log('smash')
+      box.anims.play('layer-barrell')
+    } else if (box.kind == 'crate') {
+      console.log('smash')
+      box.anims.play('layer-crate')
+    }
+    this.createPowreUp(box.x, box.y)
   }
   /////
   hitDoor(playersprite, door) {
@@ -814,32 +833,9 @@ class playGame extends Phaser.Scene {
     //if the block has been hit from the bottom and is not already hit then...
     if (block.body.touching.down && !block.hit) {
       //mark block as hit
-      //  block.hit = true;
+      //block.hit = true;
       //frames: 9,30,33
-      var powerUpFrames = [8, 9, 30, 33]
-      var powerup = powerupGroup.get().setActive(true);
-      powerup.setOrigin(0.5, 0.5).setScale(1).setDepth(3).setVisible(true);
-      var type = Phaser.Utils.Array.GetRandom(powerUpFrames)
-      if (type == 9) {
-        powerup.kind = 'shield'
-        powerup.setScale(1.5)
-      } else if (type == 30) {
-        powerup.kind = 'invincible'
-      } else if (type == 8) {
-        powerup.kind = 'magic'
-      } else {
-        powerup.kind = 'potion'
-      }
-      powerup.setFrame(type)
-      powerup.enableBody = true;
-      powerup.x = block.x;
-      powerup.y = block.y;
-
-      powerup.body.setVelocityY(-300);
-      powerup.body.setVelocityX(80)
-      powerup.setGravityY(800)
-
-      powerup.body.setAllowGravity(true);
+      this.createPowreUp(block.x, block.y)
 
       //animate the box being hit and jumping up slightly
       var tween = this.tweens.add({
@@ -850,6 +846,32 @@ class playGame extends Phaser.Scene {
         duration: 100
       });
     }
+  }
+  createPowreUp(x, y) {
+    var powerUpFrames = [8, 9, 30, 33]
+    var powerup = powerupGroup.get().setActive(true);
+    powerup.setOrigin(0.5, 0.5).setScale(1).setDepth(3).setVisible(true);
+    var type = Phaser.Utils.Array.GetRandom(powerUpFrames)
+    if (type == 9) {
+      powerup.kind = 'shield'
+      powerup.setScale(1.5)
+    } else if (type == 30) {
+      powerup.kind = 'invincible'
+    } else if (type == 8) {
+      powerup.kind = 'magic'
+    } else {
+      powerup.kind = 'potion'
+    }
+    powerup.setFrame(type)
+    powerup.enableBody = true;
+    powerup.x = x;
+    powerup.y = y;
+
+    powerup.body.setVelocityY(-300);
+    powerup.body.setVelocityX(80)
+    powerup.setGravityY(800)
+
+    powerup.body.setAllowGravity(true);
   }
   collectPowerup(playersprite, power) {
     // player.setTintFill(0xff0000)
@@ -862,6 +884,10 @@ class playGame extends Phaser.Scene {
     } else if (power.kind == 'magic') {
       this.addMagic()
       playerData.hasMagic = true
+    } else if (power.kind == 'invincible') {
+      player.invincible = true
+      var timer = this.time.delayedCall(5000, player.playerVulnerable, null, player);
+      player.setAlpha(.7)
     }
     player.body.velocity.x = 0;
     player.body.velocity.y = 0;
@@ -1096,6 +1122,23 @@ class playGame extends Phaser.Scene {
       sprites[i].x += (this.map.tileWidth / 2)
       sprites[i].y += (this.map.tileHeight / 2)
       questions.add(sprites[i])
+    }
+  }
+  createBoxes(layer) {
+    this.anims.create({
+      key: "layer-chest",
+      frames: this.anims.generateFrameNumbers('chest', { frames: [1, 2, 3] }),
+      frameRate: 8,
+      repeat: 0
+    });
+    boxes = this.physics.add.group({ allowGravity: false, immovable: true });
+    var sprites = this.map.createFromTiles(chestFrame, 0, { key: 'chest', frame: 0 }, null, null, layer)
+    for (var i = 0; i < sprites.length; i++) {
+      sprites[i].x += (this.map.tileWidth / 2)
+      sprites[i].y += (this.map.tileHeight / 2)
+      sprites[i].kind = 'chest'
+      boxes.add(sprites[i])
+      sprites[i].body.enable = true
     }
   }
   createSpikes(layer) {

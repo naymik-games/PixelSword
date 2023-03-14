@@ -77,9 +77,9 @@ class UI extends Phaser.Scene {
 
 
     this.anims.create({
-      key: "ui-potion",
-      frames: this.anims.generateFrameNumbers('potion', { start: 0, end: 7 }),
-      frameRate: 8,
+      key: "ui-bomb",
+      frames: this.anims.generateFrameNumbers('bomb_anim', { start: 0, end: 2 }),
+      frameRate: 3,
       repeat: -1
     });
 
@@ -87,8 +87,8 @@ class UI extends Phaser.Scene {
     this.footer.displayWidth = game.config.width / 2;
     this.footer.displayHeight = 75;
     this.levelText = this.add.bitmapText(game.config.width - 35, game.config.height - 33.5, 'topaz', playerData.currentWorld + '-' + playerData.currentLevel, 35).setOrigin(1, .5).setTint(0xcbf7ff).setAlpha(1);
-    this.bombIcon = this.add.sprite(315, game.config.height - 60, 'potion', 0).setOrigin(0, 0).setScale(3)
-    this.bombIcon.anims.play('ui-potion')
+    this.bombIcon = this.add.sprite(315, game.config.height - 60, 'bomb_anim', 0).setOrigin(0, 0).setScale(3)
+    this.bombIcon.anims.play('ui-bomb')
     this.bombText = this.add.bitmapText(365, game.config.height - 39, 'topaz', 'x' + playerData.bombCount, 35).setOrigin(0, .5).setTint(0xcbf7ff).setAlpha(1);
     this.magicIcon = this.add.sprite(425, game.config.height - 55, 'magicbullet').setOrigin(0, 0).setScale(6).setAlpha(0)
 

@@ -234,6 +234,7 @@ class Player extends Phaser.Physics.Arcade.Sprite {
       duration: 200,
       onComplete: function () {
         this.invulnerable = false;
+        this.invincible = false
       },
       onCompleteScope: this
     });
