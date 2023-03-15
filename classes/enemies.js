@@ -814,6 +814,76 @@ class TurtleKnight extends Enemy {
 
 }
 
+/////////////////////////////////////////////////////////////////////////////////////
+// Enemy 6 turtle knight
+////////////////////////////////////////////////////////////////////////////////////
+class Minion extends Enemy {
+  constructor(scene, x, y, kind) {
+    super(scene, x, y, kind);
+
+    const anims = scene.anims;
+
+    this.setGravityY(800)
+    this.setScale(1.3)
+    this.launched = false
+    //this.play('thrust');
+    var tiles = 4
+    this.vx = Phaser.Math.Between(10, 25)
+    var maxDistance = (tiles * scene.map.tileWidth) + scene.map.tileWidth / 2;
+    //  You can either do this:
+    this.shell = false
+
+    this.previousX = this.x;
+    this.strength = enemeyConfigs[kind].strength
+    this.damage = enemeyConfigs[kind].damage
+    this.frozen = false
+    this.maxDistance = maxDistance
+    this.saveXYV = { x: 0, y: 0 }
+    this.anims.create({
+      key: 'enemy-run',
+      frames: anims.generateFrameNumbers(enemeyConfigs[kind].key, { frames: enemeyConfigs[kind].frames }),
+      // frames: anims.generateFrameNumbers(enemeyConfigs[kind].key, enemeyConfigs[kind].frames),
+      frameRate: enemeyConfigs[kind].fr,
+      repeat: -1
+    })
+    /* this.anims.create({
+      key: 'enemy-jump',
+      frames: anims.generateFrameNumbers(enemeyConfigs[kind].key, { frames: [24, 25, 26, 27] }),
+      // frames: anims.generateFrameNumbers(enemeyConfigs[kind].key, enemeyConfigs[kind].frames),
+      frameRate: enemeyConfigs[kind].fr,
+      repeat: 0
+    })
+    this.anims.create({
+      key: 'enemy-attack',
+      frames: anims.generateFrameNumbers(enemeyConfigs[kind].key, { frames: [40, 41, 42, 43, 44, 45, 46] }),//40, 41, 42, 43, 44, 45, 46    48, 49, 50, 51, 52, 53, 54    56, 57, 58, 59, 60, 61, 62, 63
+      // frames: anims.generateFrameNumbers(enemeyConfigs[kind].key, enemeyConfigs[kind].frames),
+      frameRate: enemeyConfigs[kind].fr,
+      repeat: 0
+    })
+    this.anims.create({
+      key: 'enemy-attack-throw',
+      frames: anims.generateFrameNumbers(enemeyConfigs[kind].key, { frames: [56, 57, 58, 59, 60, 61, 62, 63] }),//40, 41, 42, 43, 44, 45, 46    48, 49, 50, 51, 52, 53, 54    56, 57, 58, 59, 60, 61, 62, 63
+      // frames: anims.generateFrameNumbers(enemeyConfigs[kind].key, enemeyConfigs[kind].frames),
+      frameRate: 12,
+      repeat: 0
+    }) */
+    this.play('enemy-run')
+    this.body.setSize(14, 16).setOffset(2, 2)
+    this.body.velocity.x = -this.vx;
+    this.direction = -1;
+    this.setFlipX(true)
+
+
+  }
+  preUpdate(time, delta) {
+    super.preUpdate(time, delta);
+
+    this.patrol()
+
+
+  }
+
+}
 
 
 let enemeyConfigs = [
@@ -879,5 +949,31 @@ let enemeyConfigs = [
     fr: 8,
     strength: 1,
     damage: [-1, -3, -1]
+  },
+  {
+    id: 7,
+    key: 'minions',
+    name: 'Minion',
+    frames: [10, 11],
+    fr: 4,
+    strength: 1,
+    damage: [-1, -3, -1]
   }
 ]
+
+
+/*
+id name class action color key/file
+0 Bronze Knight BronzeKnight patrols until hits something Bronze knight/knight.png
+1 Jumper Knight JumperKnight jumps, pauses, jups Tan knighttan/Knight_F.png
+2 Swordsman Knight SowrdsmanKnight fixed patrol with swing multi knightgrey/Knight_H.png
+3 Flying Crow CrowFly flyies and attacks dark blue crow/crow.png
+4 Sitting Crow CrowSit squaks and fires bullets dark blue crow/crow.png
+5 Throwing Knight ThrowingKnight fixed patrol with throwing gold knightgold/Knight_G.png
+6 Turtle Knight TurtleKnight fixed partrol, jump on turn green knightturtle/Knight_T.png
+
+
+225 197 158 E1C59E
+
+175 94 73 AF5E49
+*/

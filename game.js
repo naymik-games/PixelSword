@@ -567,7 +567,7 @@ class playGame extends Phaser.Scene {
         //if our hero isn't moving left or right then slow them down
         //this velocity.x check just works out whether we are setting a positive (going right) or negative (going left) number
         player.setAccelerationX(
-          (player.body.velocity.x > 0 ? -1 : 1) * acceleration / 5
+          (player.body.velocity.x > 0 ? -1 : 1) * acceleration / 1.75 ///to slide make this more
         );
       }
     }
@@ -630,9 +630,12 @@ class playGame extends Phaser.Scene {
     }
   }
   /////////////////////////////////////////////////////////////////////////
-  onWorldBounds(body) {
-    player.setVelocityY(-600);
-    player.die()
+  onWorldBounds(body, blockedUp, blockedDown, blockedLeft, blockedRight) {
+    if (blockedDown && !blockedLeft && !blockedRight) {
+      player.setVelocityY(-600);
+      player.die()
+    }
+
   }
   hitSpikes(playersprite, spike) {
     if (this.spikesActive) {
@@ -713,6 +716,7 @@ class playGame extends Phaser.Scene {
             door.anims.play('layer-door', true).once('animationcomplete', function () {
               // this.scene.stop()
               //this.scene.stop('UI')
+              localStorage.setItem('PixelSwordSave', JSON.stringify(playerData));
               this.nextLevel()
               this.scene.restart()
             }, this)
@@ -1730,6 +1734,9 @@ class playGame extends Phaser.Scene {
       } else if (this.thinglayer[i].name == 'Turtle Knight') {
         var enemey3 = new TurtleKnight(this, worldXY.x + (this.map.tileWidth / 2), worldXY.y - (this.map.tileHeight / 2), 6)
         //console.log('make enemy 1')
+      } else if (this.thinglayer[i].name == 'Minion') {
+        var enemey3 = new Minion(this, worldXY.x + (this.map.tileWidth / 2), worldXY.y - (this.map.tileHeight / 2), 7)
+        //console.log('make enemy 1')
       }
 
     }
@@ -1778,6 +1785,9 @@ class playGame extends Phaser.Scene {
   }
   addShield() {
     this.events.emit('addshield')
+  }
+  updateShield() {
+    this.events.emit('updateshield')
   }
   addPotion() {
     this.events.emit('addpotion')

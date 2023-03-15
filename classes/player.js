@@ -220,6 +220,11 @@ class Player extends Phaser.Physics.Arcade.Sprite {
           this.scene.scene.start('startGame')
         } else {
           playerData.lives--
+          playerData.hasMagic = false
+          this.scene.subMagic()
+          playerData.shieldCount = 0
+          this.scene.updateShield()
+          localStorage.setItem('PixelSwordSave', JSON.stringify(playerData));
           this.scene.restartScene();
           this.scene.scene.restart();
         }

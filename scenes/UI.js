@@ -51,17 +51,17 @@ class UI extends Phaser.Scene {
     this.shields = []
     // this.shieldIcon2 = this.add.sprite(215, 17.5, 'shield', 0).setOrigin(.5, 0).setScale(1)
     for (var i = 0; i < 5; i++) {
-      var shield = this.add.sprite(175 + i * 40, 17.5, 'shield', 0).setOrigin(.5, 0).setScale(1)
+      var shield = this.add.sprite(175 + i * 40, 17.5, 'shield', 0).setOrigin(.5, 0).setScale(1).setAlpha(0)
       //  shield.anims.play('layer-shield')
       this.shields.push(shield)
-      if (i < playerData.shieldCount) {
-        shield.setAlpha(1)
-      } else {
-        shield.setAlpha(0)
-      }
+      /*   if (i < playerData.shieldCount) {
+          shield.setAlpha(1)
+        } else {
+          shield.setAlpha(0)
+        } */
     }
 
-
+    this.placeShields()
     this.anims.create({
       key: "layer-player",
       frames: this.anims.generateFrameNumbers('player_icon', { frames: [0, 1, 2, 3, 4] }),
@@ -116,6 +116,12 @@ class UI extends Phaser.Scene {
         this.placeShields()
       }
       //console.log('dots ' + string)
+
+    }, this);
+    Main.events.on('updateshield', function () {
+
+      this.placeShields()
+
 
     }, this);
     Main.events.on('addpotion', function () {

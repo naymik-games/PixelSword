@@ -130,6 +130,10 @@ class preloadGame extends Phaser.Scene {
       frameWidth: 16,
       frameHeight: 16,
     });
+    this.load.spritesheet("minions", "assets/sprites/enemies/minions.png", {
+      frameWidth: 18,
+      frameHeight: 18,
+    });
     this.load.spritesheet("player_icon", "assets/sprites/player_icon.png", {
       frameWidth: 30,
       frameHeight: 26,
