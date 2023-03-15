@@ -13,10 +13,11 @@ class Player extends Phaser.Physics.Arcade.Sprite {
 
     this.setOrigin(.5, .5);
     // this.setScale(1.5)
-    // this.setCollideWorldBounds(true);
+    this.setCollideWorldBounds(true);
+    this.body.onWorldBounds = true;
     this.setBounce(0)
     this.setGravityY(800)
-    //.setScale(1)
+    //  .setScale(1.75)
     //.setDrag(3000, 0)
     this.setMaxVelocity(maxVelocityX, maxVelocityY)
 
@@ -167,36 +168,7 @@ class Player extends Phaser.Physics.Arcade.Sprite {
       //if hearts is 0 or less you're dead as you are out of lives
       if (playerData.shieldCount <= 0) {
         //remove physics from player
-        this.disableBody(false, false);
-        //and play death animation
-        var tween = this.scene.tweens.add({
-          targets: this,
-          alpha: 0.3,
-          scaleX: 1.1,
-          scaleY: 1.1,
-          angle: 90,
-          x: this.x - 20,
-          y: this.y - 20,
-          ease: 'Linear',
-          duration: 1000,
-          onCompleteScope: this,
-          onComplete: function () {
-            if (playerData.lives <= 0) {
-
-              localStorage.removeItem('PixelSwordSave');
-              this.scene.scene.stop()
-              this.scene.scene.stop('UI')
-              this.scene.scene.start('startGame')
-            } else {
-              playerData.lives--
-              this.scene.restartScene();
-              this.scene.scene.restart();
-            }
-
-
-          },
-          onCompleteScope: this
-        });
+        this.die()
       }
       //otherwise you're not dead you've just lost a life so...
       else {
@@ -224,6 +196,41 @@ class Player extends Phaser.Physics.Arcade.Sprite {
         var timer = this.scene.time.delayedCall(1000, this.playerVulnerable, null, this);
       }
     }
+  }
+  die() {
+    this.disableBody(false, false);
+    //and play death animation
+    var tween = this.scene.tweens.add({
+      targets: this,
+      alpha: 0.3,
+      scaleX: 1.1,
+      scaleY: 1.1,
+      angle: 90,
+      x: this.x - 20,
+      y: this.y - 20,
+      ease: 'Linear',
+      duration: 1000,
+      onCompleteScope: this,
+      onComplete: function () {
+        if (playerData.lives <= 0) {
+
+          localStorage.removeItem('PixelSwordSave');
+          this.scene.scene.stop()
+          this.scene.scene.stop('UI')
+          this.scene.scene.start('startGame')
+        } else {
+          playerData.lives--
+          this.scene.restartScene();
+          this.scene.scene.restart();
+        }
+
+
+      },
+      onCompleteScope: this
+    });
+
+
+
   }
   playerVulnerable() {
     //tween player back to 100% opacity and reset invulnerability flag

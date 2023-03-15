@@ -251,6 +251,7 @@ class playGame extends Phaser.Scene {
     this.thinglayer = this.map.getObjectLayer('things')['objects'];
     this.createCoins()
     this.cameras.main.setBounds(0, 0, this.map.widthInPixels, this.map.heightInPixels + 100);// 
+    this.physics.world.setBounds(0, 0, this.map.widthInPixels, this.map.heightInPixels, true, true, true, true)
     this.cameras.main.setViewport(0, 100, game.config.width, game.config.height);
     this.cameras.main.setZoom(3)
     this.createPlayer()
@@ -271,6 +272,8 @@ class playGame extends Phaser.Scene {
     const layerFor = this.map.createLayer('fore', this.tiles);
 
     this.physics.world.addCollider(player, layer)
+    this.physics.world.on('worldbounds', this.onWorldBounds);
+
     this.physics.world.addCollider(player, lavaSpouts)
     this.physics.world.addCollider(player, hPlatforms)
     this.physics.add.overlap(player, fallingBlocks, this.hitFallingBlock, null, this)
@@ -627,6 +630,10 @@ class playGame extends Phaser.Scene {
     }
   }
   /////////////////////////////////////////////////////////////////////////
+  onWorldBounds(body) {
+    player.setVelocityY(-600);
+    player.die()
+  }
   hitSpikes(playersprite, spike) {
     if (this.spikesActive) {
       player.playerHit(1)
@@ -688,6 +695,7 @@ class playGame extends Phaser.Scene {
       box.anims.play('layer-crate')
     }
     this.createPowreUp(box.x, box.y)
+
   }
   /////
   hitDoor(playersprite, door) {
@@ -848,7 +856,7 @@ class playGame extends Phaser.Scene {
     }
   }
   createPowreUp(x, y) {
-    var powerUpFrames = [8, 9, 30, 33]
+    var powerUpFrames = [8, 9, 30, 33, 45]
     var powerup = powerupGroup.get().setActive(true);
     powerup.setOrigin(0.5, 0.5).setScale(1).setDepth(3).setVisible(true);
     var type = Phaser.Utils.Array.GetRandom(powerUpFrames)
@@ -859,13 +867,15 @@ class playGame extends Phaser.Scene {
       powerup.kind = 'invincible'
     } else if (type == 8) {
       powerup.kind = 'magic'
-    } else {
+    } else if (type == 33) {
       powerup.kind = 'potion'
+    } else {
+      powerup.kind = 'coin'
     }
     powerup.setFrame(type)
     powerup.enableBody = true;
     powerup.x = x;
-    powerup.y = y;
+    powerup.y = y - 8;
 
     powerup.body.setVelocityY(-300);
     powerup.body.setVelocityX(80)
@@ -888,6 +898,9 @@ class playGame extends Phaser.Scene {
       player.invincible = true
       var timer = this.time.delayedCall(5000, player.playerVulnerable, null, player);
       player.setAlpha(.7)
+    } else if (power.type == 'Coin') {
+      // playerData.coinCount++
+      this.addScore()
     }
     player.body.velocity.x = 0;
     player.body.velocity.y = 0;
@@ -1676,7 +1689,7 @@ class playGame extends Phaser.Scene {
         var worldXY = this.map.tileToWorldXY(this.thinglayer[i].x, this.thinglayer[i].y + 1)
 
         startX = worldXY.x + (this.map.tileWidth / 2)
-        startY = worldXY.y - (this.map.tileHeight / 2)
+        startY = worldXY.y - (this.map.tileHeight / 2)// /2
       }
     }
 
